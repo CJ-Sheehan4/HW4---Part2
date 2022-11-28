@@ -38,6 +38,10 @@ input {
 #btn-delete {
   background: #00F35C;
 }
+#submit {
+  background: #00F35C;
+  color: black;
+}
 .error {
   color: rgb(206, 0, 0);
   font-weight: normal;
@@ -48,16 +52,32 @@ input {
   height: 395px;
   background: black;
 }
+/*
 #coltable .ui-state-active {
   background: #00F35C;
   color: black;
-}
+}*/
 .ui-tabs .ui-tabs-nav{
-  background: black;
+  background: rgb(0, 0, 0);
 }
-#coltable .ui-state-default {
-  background: #00F35C;
+#coltable .ui-tabs-nav a{
+  background-color: #006620;
+  color: #00F35C;
+}
+.ui-tabs .ui-tabs-nav li {
+  background-color: #006620;
+  color: #00F35C;
+}
+#coltable .ui-state-active a{
+  color: white;
+}
+#coltable .ui-state-active #maina{
+  color: white;
+}
+.ui-tabs .ui-tabs-nav #maina{
+  font-weight: bold;
   color: black;
+  background-color:#00F35C;
 }
 table {
   margin: 50px auto;
