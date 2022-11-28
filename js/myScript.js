@@ -37,6 +37,7 @@ function submitForm(input){
   if(minCClicked && maxCClicked && minRClicked && maxRClicked){
     $("#form").submit();
   }
+
 }
 // function to get all the values in the input.
 // returns an object with key values that hold arrays of the actual values and the element itself
@@ -119,7 +120,8 @@ $(document).ready(function(){
         required: true,        
         nowhitespace: true,
         number: true,
-        range: [-50,50]
+        range: [-50,50],
+        onlyIntegers: true
         
       },
       maxc: {
@@ -127,26 +129,28 @@ $(document).ready(function(){
         nowhitespace: true,
         number: true,
         range: [-50,50],
-        maxcIsLargest: true
+        maxcIsLargest: true,
+        onlyIntegers: true
       },
       minr: {
         required: true,        
         nowhitespace: true,
         number: true,
-        range: [-50,50]
+        range: [-50,50],
+        onlyIntegers: true
       },
       maxr: {
         required: true,        
         nowhitespace: true,
         number: true,
         range: [-50,50],
-        maxrIsLargest: true
+        maxrIsLargest: true,
+        onlyIntegers: true
       }
     },
     submitHandler: function(){
       var input = getInputValues(); 
       generateTable(input);
-
     }
   });
   /*
@@ -156,8 +160,8 @@ $(document).ready(function(){
 
   //minimum column slider
   var minCSlider = {
-    min: -50,
-    max: 50,
+    min: -51,
+    max: 51,
     value: 0,
     animate: "slow",
     slide: function() {
@@ -167,62 +171,50 @@ $(document).ready(function(){
       // then sets that value in the input element for minimum column      
       input.minCol[0] = $("#minCSlider").slider("value");
       $("#minc").val(input.minCol[0]);
-    },
-    stop: function() {
-      var input = getInputValues();
-      minCClicked = true;
-      submitForm(input);      
+      minCClicked = true;      
+      submitForm(input);   
     }
   };
   // maximum column slider
   var maxCSlider = {
-    min: -50,
-    max: 50,
+    min: -51,
+    max: 51,
     value: 0,
     slide: function() {
       $("#coltable").tabs("option", "active", 0);
       var input = getInputValues();
       input.maxCol[0] = $("#maxCSlider").slider("value");
       $("#maxc").val(input.maxCol[0]);
-    },
-    stop: function() {
-      var input = getInputValues();
       maxCClicked = true;
-      submitForm(input);
+      submitForm(input);   
     }
   }
   // minimum row slider
   var minRSlider = {
-    min: -50,
-    max: 50,
+    min: -51,
+    max: 51,
     value: 0,
     slide: function() {
       $("#coltable").tabs("option", "active", 0);
       var input = getInputValues();
       input.minRow[0] = $("#minRSlider").slider("value");
       $("#minr").val(input.minRow[0]);
-    },
-    stop: function() {
-      var input = getInputValues();
       minRClicked = true;
-      submitForm(input);
+      submitForm(input);   
     }
   }
   // maximum row slider
   var maxRSlider = {
-    min: -50,
-    max: 50,
+    min: -51,
+    max: 51,
     value: 0,
     slide: function() {
       $("#coltable").tabs("option", "active", 0);
       var input = getInputValues();
       input.maxRow[0] = $("#maxRSlider").slider("value");
       $("#maxr").val(input.maxRow[0]);
-    },
-    stop: function() {
-      var input = getInputValues();
       maxRClicked = true;
-      submitForm(input);
+      submitForm(input);   
     }
   }
 /*
@@ -281,12 +273,16 @@ $(document).ready(function(){
   // The two methods are making sure that the min column or row is smaller than the max column or row
   $.validator.addMethod("maxcIsLargest", function(value){
     var input = getInputValues();
-    return input.minCol[0] < value;
+    return input.minCol[0] <= value;
   }, "maximum column must be greater than minimum column");
   $.validator.addMethod("maxrIsLargest", function(value){
     var input = getInputValues();
-    return input.minRow[0] < value;
+    return input.minRow[0] <= value;
   }, "maximum row must be greater than minimum row");
+  // method to ensure that only integers are entered as a value
+  $.validator.addMethod("onlyIntegers", function(value){
+    return !(value.includes('.'));
+  }, "only integer values allowed");
   // this checks the checkboxes if they have been checked,
   // iterates through the list of current divs and deletes the
   // ones that were checked along with their corresponding li elements
@@ -305,31 +301,33 @@ $(document).ready(function(){
   });
   // when the submit button is clicked, it saves the current table into a new tab
   $("#submit").on("click", function(){
-    var input = getInputValues();      
-    let savedTable = generateTable(input);
-    // makes a clone of that HTML table into the saveTable variable to display in a new tab.
-    // otherwise it was changing the original table in the main first tab
-    savedTable = savedTable.cloneNode(true);
-    // declaring some strings needed as element ids
-    savedTable.id = "t" + tNum;
-    tNum++;
-    var tabNum = "#tab-" + tabIterator;
-    var tabNum1 = "tab-" + tabIterator;
-    var checkID = "check" + parseInt(checkIterator);
-    var liID = "li" + parseInt(checkIterator);
-  // putting together new li and div elements to append to the main div when a new tab is created
-    var newLi = $("<li id='" + liID + "'><a href=" + "'" + tabNum + "'" + ">C[" + input.minCol[0] + ", " + input.maxCol[0] + "] R[" + input.minRow[0] + ", " + input.maxRow[0] + "]</a><input type='checkbox' id='" + checkID + "'></input></li>");
-    $(newLi).appendTo("ul");
-    var newDiv = $("<div id=" + "'" + tabNum1 + "'" + "></div>");
-    $(newDiv).appendTo("div#coltable");
-    $(newDiv).html(savedTable);
-    // after new table appended, refresh the tabs and set active ones
-    $("#coltable").tabs("refresh");
-    $("#coltable").tabs("option", "active", parseInt(tabIterator) - 1);
-    if(parseInt($("#coltable").contents().filter("div").length) === 1){
-      $("#coltable").tabs("option", "active", 0);
+    if($("#form").valid()){
+      var input = getInputValues();      
+      let savedTable = generateTable(input);
+      // makes a clone of that HTML table into the saveTable variable to display in a new tab.
+      // otherwise it was changing the original table in the main first tab
+      savedTable = savedTable.cloneNode(true);
+      // declaring some strings needed as element ids
+      savedTable.id = "t" + tNum;
+      tNum++;
+      var tabNum = "#tab-" + tabIterator;
+      var tabNum1 = "tab-" + tabIterator;
+      var checkID = "check" + parseInt(checkIterator);
+      var liID = "li" + parseInt(checkIterator);
+    // putting together new li and div elements to append to the main div when a new tab is created
+      var newLi = $("<li id='" + liID + "'><a href=" + "'" + tabNum + "'" + ">C[" + input.minCol[0] + ", " + input.maxCol[0] + "] R[" + input.minRow[0] + ", " + input.maxRow[0] + "]</a><input type='checkbox' id='" + checkID + "'></input></li>");
+      $(newLi).appendTo("ul");
+      var newDiv = $("<div id=" + "'" + tabNum1 + "'" + "></div>");
+      $(newDiv).appendTo("div#coltable");
+      $(newDiv).html(savedTable);
+      // after new table appended, refresh the tabs and set active ones
+      $("#coltable").tabs("refresh");
+      $("#coltable").tabs("option", "active", parseInt(tabIterator) - 1);
+      if(parseInt($("#coltable").contents().filter("div").length) === 1){
+        $("#coltable").tabs("option", "active", 0);
+      }
+      tabIterator++;
+      checkIterator++;
     }
-    tabIterator++;
-    checkIterator++;  
   });
 });

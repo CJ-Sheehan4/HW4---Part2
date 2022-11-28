@@ -29,11 +29,10 @@ updated on November 25th, 2022 at 11:00AM
   border-bottom-style: solid;
 }
 form {
-  color: #00F35C;
+  color: #00F35C;  
 }
 input {
-  background-color: rgb(3, 55, 3);
-  
+  background-color: rgb(3, 55, 3);  
 }
 #btn-delete {
   background: #00F35C;
@@ -49,14 +48,9 @@ input {
 #coltable {
   overflow-y: scroll;
   overflow-x: scroll;
-  height: 395px;
+  height: 420px;
   background: black;
 }
-/*
-#coltable .ui-state-active {
-  background: #00F35C;
-  color: black;
-}*/
 .ui-tabs .ui-tabs-nav{
   background: rgb(0, 0, 0);
 }
